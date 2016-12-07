@@ -44,6 +44,7 @@ class MyEditor extends React.Component {
         this.onRedoClick = this.onRedoClick.bind(this);
         this.onLogStateClick = this.onLogStateClick.bind(this);
         this.onWidgetUpdate = this.onWidgetUpdate.bind(this);
+        this.handlePastedText = this.handlePastedText.bind(this);
     }
 
     myBlockRenderer(block) {
@@ -62,6 +63,13 @@ class MyEditor extends React.Component {
         }
 
         return null;
+    }
+
+    handlePastedText(text, html){
+        console.log('-------paste-----');
+        console.log('text: + ' + text);
+        console.log('html: + ' + html);
+        console.log('--------------------------');
     }
 
     onLogStateClick() {
@@ -124,7 +132,9 @@ class MyEditor extends React.Component {
                 <button onClick={this.onLockClick}>lock</button>
                 <button onClick={this.onInsertClick}>insert</button>
                 <Editor editorState={editorState} onChange={this.onChange} blockRendererFn={this.myBlockRenderer}
-                    readOnly={readOnly} />
+                    readOnly={readOnly}
+                    handlePastedText={this.handlePastedText}
+                     />
             </div>
         );
     }
