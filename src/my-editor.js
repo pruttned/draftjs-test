@@ -6,7 +6,8 @@ import {
     ContentState,
     RichUtils,
     Entity,
-    AtomicBlockUtils
+    AtomicBlockUtils,
+    SelectionState
 } from 'draft-js';
 import MyWidget from './my-widget';
 
@@ -57,8 +58,11 @@ class MyEditor extends React.Component {
     }
 
     onEnterEditMode(blockKey) {
-        console.log(blockKey);
-        this.setState({ selectedWidgetKey: blockKey });
+        console.log('onEnterEditMode >' + blockKey);
+        //force editor update - https://github.com/facebook/draft-js/issues/148
+        const editorState = EditorState.forceSelection(this.state.editorState, SelectionState.createEmpty(blockKey));
+
+        this.setState({ selectedWidgetKey: blockKey, editorState });
     }
 
     onInsertClick(e) {
