@@ -7,7 +7,8 @@ import {
     RichUtils,
     Entity,
     AtomicBlockUtils,
-    SelectionState
+    SelectionState,
+    convertToRaw
 } from 'draft-js';
 import MyWidget from './my-widget';
 
@@ -40,6 +41,7 @@ class MyEditor extends React.Component {
         this.onEnterEditMode = this.onEnterEditMode.bind(this);
         this.onUndoClick = this.onUndoClick.bind(this);
         this.onRedoClick = this.onRedoClick.bind(this);
+        this.onLogStateClick = this.onLogStateClick.bind(this);
     }
 
     myBlockRenderer(block) {
@@ -57,6 +59,10 @@ class MyEditor extends React.Component {
         }
 
         return null;
+    }
+
+    onLogStateClick() {
+        console.log(convertToRaw(this.state.editorState.getCurrentContent()));
     }
 
     onUndoClick() {
@@ -97,6 +103,7 @@ class MyEditor extends React.Component {
         const {editorState, readOnly} = this.state;
         return (
             <div>
+                <button onClick={this.onLogStateClick}>log state</button>
                 <button onClick={this.onUndoClick}>undo</button>
                 <button onClick={this.onRedoClick}>redo</button>
                 <button onClick={this.onLockClick}>lock</button>
