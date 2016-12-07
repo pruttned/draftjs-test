@@ -8,7 +8,8 @@ import {
     Entity,
     AtomicBlockUtils,
     SelectionState,
-    convertToRaw
+    convertToRaw,
+    Modifier
 } from 'draft-js';
 import MyWidget from './my-widget';
 
@@ -42,6 +43,7 @@ class MyEditor extends React.Component {
         this.onUndoClick = this.onUndoClick.bind(this);
         this.onRedoClick = this.onRedoClick.bind(this);
         this.onLogStateClick = this.onLogStateClick.bind(this);
+        this.onWidgetUpdate = this.onWidgetUpdate.bind(this);
     }
 
     myBlockRenderer(block) {
@@ -53,6 +55,7 @@ class MyEditor extends React.Component {
                 editable: false,
                 props: {
                     onEnterEditMode: this.onEnterEditMode,
+                    onWidgetUpdate: this.onWidgetUpdate,
                     isInEditMode: this.state.selectedWidgetKey === block.getKey()
                 }
             };
@@ -62,7 +65,7 @@ class MyEditor extends React.Component {
     }
 
     onLogStateClick() {
-        console.log(convertToRaw(this.state.editorState.getCurrentContent()));
+        console.log(JSON.stringify(convertToRaw(this.state.editorState.getCurrentContent())));
     }
 
     onUndoClick() {
@@ -80,6 +83,15 @@ class MyEditor extends React.Component {
         const editorState = EditorState.forceSelection(this.state.editorState, SelectionState.createEmpty(blockKey));
 
         this.setState({ selectedWidgetKey: blockKey, editorState });
+    }
+    onWidgetUpdate(blockKey, data) {
+        let newContent = Modifier.setBlockData(this.state.editorState.getCurrentContent(), SelectionState.createEmpty(blockKey), { abc: new Date().toISOString() });
+
+        console.log(JSON.stringify(convertToRaw(newContent)));
+        //Entity.replaceData(blockKey, {xyz:123});
+        const editorState = EditorState.push(this.state.editorState, newContent, 'change-block-data')
+        this.setState({ editorState });
+
     }
 
     onInsertClick(e) {
@@ -99,6 +111,9 @@ class MyEditor extends React.Component {
         const readOnly = !this.state.readOnly;
         this.setState({ readOnly });
     }
+
+
+
     render() {
         const {editorState, readOnly} = this.state;
         return (
