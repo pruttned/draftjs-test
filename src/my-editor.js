@@ -38,6 +38,8 @@ class MyEditor extends React.Component {
         this.onLockClick = this.onLockClick.bind(this);
         this.myBlockRenderer = this.myBlockRenderer.bind(this);
         this.onEnterEditMode = this.onEnterEditMode.bind(this);
+        this.onUndoClick = this.onUndoClick.bind(this);
+        this.onRedoClick = this.onRedoClick.bind(this);
     }
 
     myBlockRenderer(block) {
@@ -55,6 +57,15 @@ class MyEditor extends React.Component {
         }
 
         return null;
+    }
+
+    onUndoClick() {
+        const editorState = EditorState.undo(this.state.editorState);
+        this.setState({ editorState });
+    }
+    onRedoClick() {
+        const editorState = EditorState.redo(this.state.editorState);
+        this.setState({ editorState });
     }
 
     onEnterEditMode(blockKey) {
@@ -86,6 +97,8 @@ class MyEditor extends React.Component {
         const {editorState, readOnly} = this.state;
         return (
             <div>
+                <button onClick={this.onUndoClick}>undo</button>
+                <button onClick={this.onRedoClick}>redo</button>
                 <button onClick={this.onLockClick}>lock</button>
                 <button onClick={this.onInsertClick}>insert</button>
                 <Editor editorState={editorState} onChange={this.onChange} blockRendererFn={this.myBlockRenderer}
