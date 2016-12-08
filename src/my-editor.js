@@ -93,9 +93,9 @@ class MyEditor extends React.Component {
         this.setState({ selectedWidgetKey: blockKey, editorState });
     }
     onWidgetUpdate(blockKey, data) {
-        let newContent = Modifier.setBlockData(this.state.editorState.getCurrentContent(), SelectionState.createEmpty(blockKey), { abc: new Date().toISOString() });
+        let newContent = Modifier.setBlockData(this.state.editorState.getCurrentContent(), SelectionState.createEmpty(blockKey), data);
 
-        console.log(JSON.stringify(convertToRaw(newContent)));
+        // console.log(JSON.stringify(convertToRaw(newContent)));
         //Entity.replaceData(blockKey, {xyz:123});
         const editorState = EditorState.push(this.state.editorState, newContent, 'change-block-data')
         this.setState({ editorState });

@@ -10,6 +10,17 @@ class MyWidget extends Component {
 
         this.onOverlayClick = this.onOverlayClick.bind(this);
         this.onEditorUpdateClick = this.onEditorUpdateClick.bind(this);
+        this.onFileChange = this.onFileChange.bind(this);
+    }
+
+    onFileChange(evt) {
+        let input = evt.target;
+
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = e => this.props.blockProps.onWidgetUpdate(this.props.block.getKey(), { imgData: e.target.result });
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 
     onOverlayClick() {
@@ -34,6 +45,7 @@ class MyWidget extends Component {
 
     }
 
+    //http://stackoverflow.com/a/4459419
 
     render() {
         // let eee = Entity.get(this.props.block.getEntityAt(0));
@@ -49,7 +61,7 @@ class MyWidget extends Component {
         // console.log(this.props.block);
         // console.log('-------------------');
 
-        const abcData = this.props.block.getData().get('abc');
+        const imgData = this.props.block.getData().get('imgData');
 
         const {isInEditMode} = this.props.blockProps;
         const className = classNames({
@@ -59,7 +71,8 @@ class MyWidget extends Component {
         const editor = isInEditMode ? this.renderEditor() : null;
         return (
             <div onClick={this.onOverlayClick} className={className}>
-                asd --{abcData}--
+                <img src={imgData}/>
+                zz
                 {editor}
             </div>
         );
@@ -70,6 +83,7 @@ class MyWidget extends Component {
             <div>
                 <div>editor</div>
                 <button onClick={this.onEditorUpdateClick}>update</button>
+                <input type="file" onChange={this.onFileChange}></input>
             </div>
         );
     }
