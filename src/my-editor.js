@@ -149,24 +149,25 @@ class MyEditor extends React.Component {
         console.log('html: + ' + html);
         console.log('--------------------------');
 
+        if (html) {
+            const blockRenderMap = DefaultDraftBlockRenderMap.set('p', { element: 'p' });
 
-        const blockRenderMap = DefaultDraftBlockRenderMap.set('p', { element: 'p' });
+            //https://github.com/facebook/draft-js/issues/416#issuecomment-221639163
+            let {editorState} = this.state;
 
-        //https://github.com/facebook/draft-js/issues/416#issuecomment-221639163
-        let {editorState} = this.state;
+            //TODO: https://github.com/facebook/draft-js/issues/523
+            let blocksFromHtml = convertFromHTML(html, getSafeBodyFromHTML, blockRenderMap)
+                .map(b => (b.get('type') === 'p' ? b.set('type', 'unstyled') : b));
+            const blockMap = ContentState.createFromBlockArray(blocksFromHtml).getBlockMap();
 
-        //TODO: https://github.com/facebook/draft-js/issues/523
-        let blocksFromHtml = convertFromHTML(html, getSafeBodyFromHTML, blockRenderMap)
-            .map(b => (b.get('type') === 'p' ? b.set('type', 'unstyled') : b));
-        const blockMap = ContentState.createFromBlockArray(blocksFromHtml).getBlockMap();
+            const newContentState = Modifier.replaceWithFragment(editorState.getCurrentContent(), editorState.getSelection(), blockMap);
 
-        const newContentState = Modifier.replaceWithFragment(editorState.getCurrentContent(), editorState.getSelection(), blockMap);
-
-        editorState = EditorState.push(editorState, newContentState, 'insert-characters')
-        this.setState({ editorState });
+            editorState = EditorState.push(editorState, newContentState, 'insert-characters')
+            this.setState({ editorState });
 
 
-        return true;
+            return true;
+        }
     }
 
     onLogStateClick() {
