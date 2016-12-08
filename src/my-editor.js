@@ -27,13 +27,48 @@ import MyWidget from './my-widget';
 //     );
 // };
 
-
+//from link example
+const styles = {
+    link: {
+        color: '#3b5998',
+        textDecoration: 'underline',
+    },
+};
+function findLinkEntities(contentBlock, callback) {
+    contentBlock.findEntityRanges(
+        (character) => {
+            const entityKey = character.getEntity();
+            return (
+                entityKey !== null &&
+                Entity.get(entityKey).getType() === 'LINK'
+            );
+        },
+        callback
+    );
+}
+const Link = (props) => {
+    const {url} = Entity.get(props.entityKey).getData();
+    return (
+        <a href={url} style={styles.link}>
+            {props.children}
+        </a>
+    );
+};
 
 class MyEditor extends React.Component {
+
     constructor(props) {
+
+        const decorator = new CompositeDecorator([
+            {
+                strategy: findLinkEntities,
+                component: Link,
+            },
+        ]);
+
         super(props);
         this.state = {
-            editorState: EditorState.createEmpty(),
+            editorState: EditorState.createEmpty(decorator),
             readOnly: false,
             selectedWidgetKey: undefined
         };
