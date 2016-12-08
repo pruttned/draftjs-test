@@ -9,7 +9,8 @@ import {
     AtomicBlockUtils,
     SelectionState,
     convertToRaw,
-    Modifier
+    Modifier,
+    convertFromHTML
 } from 'draft-js';
 import MyWidget from './my-widget';
 
@@ -45,6 +46,7 @@ class MyEditor extends React.Component {
         this.onLogStateClick = this.onLogStateClick.bind(this);
         this.onWidgetUpdate = this.onWidgetUpdate.bind(this);
         this.handlePastedText = this.handlePastedText.bind(this);
+        this.onInserReachTextClick = this.onInserReachTextClick.bind(this);
     }
 
     myBlockRenderer(block) {
@@ -65,7 +67,41 @@ class MyEditor extends React.Component {
         return null;
     }
 
-    handlePastedText(text, html){
+    onInserReachTextClick() {
+        // const html = '<h1>a</h1><p>b</p><p><ul><li>x</li><li>y</li><li>z</li></ul></p>';
+        // const content = ContentState.createFromBlockArray(convertFromHTML(html));
+
+
+        // let currentContentState = this.state.editorState.getCurrentContent();
+        // let currentBlockMap = currentContentState.getBlockMap();
+        // let blockMap = content.getBlockMap();
+        // currentBlockMap = currentBlockMap.merge(blockMap);
+        // // contentState = contentState.merge({ blockMap });
+
+        // console.log(currentBlockMap.toJS());
+
+        // currentContentState = currentContentState.merge({ blockMap: currentBlockMap });
+
+        // const editorState = EditorState.push(this.state.editorState, currentContentState, 'insert-characters')
+        // this.setState({ editorState });
+
+        // console.log(blockMap.toJS());
+        // console.log(content);
+
+        
+        //https://github.com/facebook/draft-js/issues/416#issuecomment-221639163
+        let {editorState} = this.state;
+        const html = '<h1>a</h1><p>a</p><p>b</p><p><ul><li>x</li><li>y</li><li>z</li></ul></p>';
+        //TODO: https://github.com/facebook/draft-js/issues/523
+        const blockMap = ContentState.createFromBlockArray(convertFromHTML(html)).getBlockMap();
+
+        const newContentState = Modifier.replaceWithFragment(editorState.getCurrentContent(), editorState.getSelection(), blockMap);
+
+        editorState = EditorState.push(editorState, newContentState, 'insert-characters')
+        this.setState({ editorState });
+    }
+
+    handlePastedText(text, html) {
         console.log('-------paste-----');
         console.log('text: + ' + text);
         console.log('html: + ' + html);
@@ -126,6 +162,7 @@ class MyEditor extends React.Component {
         const {editorState, readOnly} = this.state;
         return (
             <div>
+                <button onClick={this.onInserReachTextClick}>inser reach</button>
                 <button onClick={this.onLogStateClick}>log state</button>
                 <button onClick={this.onUndoClick}>undo</button>
                 <button onClick={this.onRedoClick}>redo</button>
@@ -134,7 +171,7 @@ class MyEditor extends React.Component {
                 <Editor editorState={editorState} onChange={this.onChange} blockRendererFn={this.myBlockRenderer}
                     readOnly={readOnly}
                     handlePastedText={this.handlePastedText}
-                     />
+                    />
             </div>
         );
     }
