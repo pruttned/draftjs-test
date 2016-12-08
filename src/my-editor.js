@@ -10,7 +10,9 @@ import {
     SelectionState,
     convertToRaw,
     Modifier,
-    convertFromHTML
+    convertFromHTML,
+    DefaultDraftBlockRenderMap,
+    getSafeBodyFromHTML
 } from 'draft-js';
 import MyWidget from './my-widget';
 
@@ -88,12 +90,17 @@ class MyEditor extends React.Component {
         // console.log(blockMap.toJS());
         // console.log(content);
 
-        
+        //https://github.com/facebook/draft-js/issues/523
+        const blockRenderMap = DefaultDraftBlockRenderMap.set('p', { element: 'p' });
+
         //https://github.com/facebook/draft-js/issues/416#issuecomment-221639163
         let {editorState} = this.state;
         const html = '<h1>a</h1><p>a</p><p>b</p><p><ul><li>x</li><li>y</li><li>z</li></ul></p>';
+
         //TODO: https://github.com/facebook/draft-js/issues/523
-        const blockMap = ContentState.createFromBlockArray(convertFromHTML(html)).getBlockMap();
+        let blocksFromHtml = convertFromHTML(html, getSafeBodyFromHTML, blockRenderMap)
+            .map(b => (b.get('type') === 'p' ? b.set('type', 'unstyled') : b));
+        const blockMap = ContentState.createFromBlockArray(blocksFromHtml).getBlockMap();
 
         const newContentState = Modifier.replaceWithFragment(editorState.getCurrentContent(), editorState.getSelection(), blockMap);
 
