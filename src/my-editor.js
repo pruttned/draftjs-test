@@ -14,6 +14,7 @@ import {
     DefaultDraftBlockRenderMap,
     getSafeBodyFromHTML
 } from 'draft-js';
+import Immutable from 'immutable'
 import MyWidget from './my-widget';
 
 
@@ -58,6 +59,7 @@ const Link = (props) => {
 class MyEditor extends React.Component {
 
     constructor(props) {
+        super(props);
 
         const decorator = new CompositeDecorator([
             {
@@ -66,7 +68,17 @@ class MyEditor extends React.Component {
             },
         ]);
 
-        super(props);
+        //https://github.com/facebook/draft-js/issues/395
+        const blockRenderMap = Immutable.Map({
+            'paragraph': {
+                element: 'p'
+            },
+            'unstyled': {
+                element: 'p'
+            }
+        });
+        this.extendedBlockRenderMap = DefaultDraftBlockRenderMap.merge(blockRenderMap);
+
         this.state = {
             editorState: EditorState.createEmpty(decorator),
             readOnly: false,
@@ -233,6 +245,7 @@ class MyEditor extends React.Component {
                 <Editor editorState={editorState} onChange={this.onChange} blockRendererFn={this.myBlockRenderer}
                     readOnly={readOnly}
                     handlePastedText={this.handlePastedText}
+                    blockRenderMap={this.extendedBlockRenderMap} 
                     />
             </div>
         );
